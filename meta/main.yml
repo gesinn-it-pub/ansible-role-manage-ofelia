@@ -1,0 +1,21 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: "manage_ofelia"
+  namespace: gesinn
+  author: "gesinn.it"
+  description: Special purpose Ansible role to manage the Ofelia job scheduler in "factory" environments.
+  issue_tracker_url: https://github.com/gesinn-it-pub/ansible-role-manage-ofelia/issues
+  company: "gesinn.it GmbH & Co. KG"
+  license: "MIT"
+  min_ansible_version: "2.19"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm

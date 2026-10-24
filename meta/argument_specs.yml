@@ -1,0 +1,27 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy Ofelia as a Docker Compose service
+    options:
+      manage_ofelia_version:
+        type: str
+        required: true
+        description: Tag of the Ofelia image, for example C(0.3.22).
+      manage_ofelia_image:
+        type: str
+        default: mcuadros/ofelia
+        description: Ofelia image repository.
+      manage_ofelia_installation_path:
+        type: path
+        default: /var/ofelia
+        description: Directory that holds the compose file and the Ofelia configuration.
+      manage_ofelia_manage_service:
+        type: bool
+        default: true
+        description: >-
+          Start the service and restart it when its configuration changes.
+          Set to C(false) to only render the files.
+      manage_ofelia_reports_enabled:
+        type: bool
+        default: false
+        description: Save a report for every job execution to C(reports/) below the installation path.

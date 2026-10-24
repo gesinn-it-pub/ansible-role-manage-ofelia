@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+# Jobs are defined as labels on the target containers
+# (ofelia.job-exec.<name>.schedule, ...), not in this file.
+[global]
+{% if manage_ofelia_reports_enabled | bool %}
+save-folder = /reports
+{% endif %}

@@ -1,0 +1,10 @@
+---
+# Entry point `tasks_from: restart` and, imported by handlers/main.yml, the
+# "Restart ofelia" handler.
+- name: Restart ofelia
+  community.docker.docker_compose_v2:
+    project_src: "{{ manage_ofelia_installation_path }}"
+    project_name: ofelia
+    state: present
+    recreate: always
+  when: manage_ofelia_manage_service | bool

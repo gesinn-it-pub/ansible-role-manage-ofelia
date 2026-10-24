@@ -1,0 +1,34 @@
+---
+- name: Ensure Ofelia | Ensure installation directory
+  ansible.builtin.file:
+    path: "{{ manage_ofelia_installation_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure Ofelia | Ensure reports directory
+  ansible.builtin.file:
+    path: "{{ manage_ofelia_installation_path }}/reports"
+    state: directory
+    mode: "0755"
+  when: manage_ofelia_reports_enabled | bool
+
+- name: Ensure Ofelia | Ensure docker-compose.yml
+  ansible.builtin.template:
+    dest: "{{ manage_ofelia_installation_path }}/docker-compose.yml"
+    src: docker-compose.yml.j2
+    mode: "0644"
+  notify: Restart ofelia
+
+- name: Ensure Ofelia | Ensure config.ini
+  ansible.builtin.template:
+    dest: "{{ manage_ofelia_installation_path }}/config.ini"
+    src: config.ini.j2
+    mode: "0644"
+  notify: Restart ofelia
+
+- name: Ensure Ofelia | Ensure the service is running
+  community.docker.docker_compose_v2:
+    project_src: "{{ manage_ofelia_installation_path }}"
+    project_name: ofelia
+    state: present
+  when: manage_ofelia_manage_service | bool
