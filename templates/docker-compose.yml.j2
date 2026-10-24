@@ -4,6 +4,9 @@ services:
     image: {{ manage_ofelia_image }}:{{ manage_ofelia_version }}
     container_name: ofelia
     restart: unless-stopped
+    labels:
+      # Traefik exposes every container by default; Ofelia has nothing to route
+      - "traefik.enable=false"
     command: daemon --docker --config=/config.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

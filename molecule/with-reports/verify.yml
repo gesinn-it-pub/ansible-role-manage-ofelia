@@ -33,9 +33,15 @@
       ansible.builtin.assert:
         that: "'--config=/config.ini' in (compose_raw.content | b64decode)"
 
-    - name: Assert the compose file does not join the traefik network
+    - name: Assert Traefik does not expose the container
       ansible.builtin.assert:
-        that: "'traefik' not in (compose_raw.content | b64decode)"
+        that: "'traefik.enable=false' in (compose_raw.content | b64decode)"
+
+    - name: Assert the compose file does not join an external network
+      ansible.builtin.assert:
+        that:
+          - (compose_raw.content | b64decode | from_yaml).networks is not defined
+          - (compose_raw.content | b64decode | from_yaml).services.ofelia.networks is not defined
 
     - name: Assert reports are configured and the directory exists
       ansible.builtin.assert:
