@@ -17,14 +17,12 @@
     dest: "{{ manage_ofelia_installation_path }}/docker-compose.yml"
     src: docker-compose.yml.j2
     mode: "0644"
-  notify: Restart ofelia
 
-- name: Ensure Ofelia | Ensure config.ini
-  ansible.builtin.template:
-    dest: "{{ manage_ofelia_installation_path }}/config.ini"
-    src: config.ini.j2
-    mode: "0644"
-  notify: Restart ofelia
+- name: Ensure Ofelia | Remove the config.ini of 1.0.x
+  # Ofelia 0.3.x ignores it in Docker mode, the labels of docker-compose.yml replace it
+  ansible.builtin.file:
+    path: "{{ manage_ofelia_installation_path }}/config.ini"
+    state: absent
 
 - name: Ensure Ofelia | Ensure the service is running
   community.docker.docker_compose_v2:

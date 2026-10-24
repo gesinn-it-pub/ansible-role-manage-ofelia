@@ -21,6 +21,13 @@ argument_specs:
         description: >-
           Start the service and restart it when its configuration changes.
           Set to C(false) to only render the files.
+      manage_ofelia_keepalive_job:
+        type: bool
+        default: true
+        description: >-
+          Register a harmless daily job (as a label of the Ofelia container) so that the scheduler is never empty.
+          Ofelia 0.3.x exits when no job is registered, which restarts the container in a loop on hosts without a
+          job-exec label.
       manage_ofelia_reports_enabled:
         type: bool
         default: false

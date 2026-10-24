@@ -9,11 +9,15 @@ environments.
 `tasks/main.yml` deploys Ofelia as a Docker Compose service:
 
 . Creates the installation directory (and `reports/` when reports are enabled).
-. Renders `docker-compose.yml` and `config.ini` into it.
-. Starts the service with `community.docker.docker_compose_v2` and recreates it when a rendered file changed.
+. Renders `docker-compose.yml` into it.
+. Starts the service with `community.docker.docker_compose_v2`, which recreates the container when the compose file
+  changed.
 
 Ofelia reads its jobs from Docker labels (`ofelia.job-exec.<name>.schedule`, ...) on the target containers. The role
-does not define jobs. The container is named `ofelia` and gets the Docker socket read-only. It is not attached to the
+does not define jobs of its own except an optional keepalive job. Ofelia 0.3.x ignores a configuration file in Docker
+mode, so the role configures the daemon through labels of the Ofelia container instead.
+
+The container is named `ofelia` and gets the Docker socket read-only. It is not attached to the
 `traefik` network.
 
 == Requirements
@@ -61,7 +65,13 @@ The variables are validated against `meta/argument_specs.yml`.
 
 | `manage_ofelia_reports_enabled`
 | `false`
-| Save a report of every job execution to `reports/` below the installation path.
+| Save a report of every job execution to `reports/` below the installation path (`ofelia.save-folder` label).
+
+| `manage_ofelia_keepalive_job`
+| `true`
+| Register a harmless daily job as a label of the Ofelia container. Ofelia 0.3.x exits when no job is registered, so
+  without it the container restarts in a loop on a host whose containers carry no `ofelia.job-exec` labels. Switch it
+  off with Ofelia 0.4 or newer.
 
 | `manage_ofelia_manage_service`
 | `true`
@@ -70,8 +80,9 @@ The variables are validated against `meta/argument_specs.yml`.
 
 == Handlers
 
-`Restart ofelia` recreates the container after a changed `docker-compose.yml` or `config.ini`. Consumers can notify it
-or define a handler with the same name in their play.
+`Restart ofelia` recreates the container. The role does not notify it itself, because the task that starts the service
+already recreates the container when `docker-compose.yml` changed. Consumers can notify it or define a handler with
+the same name in their play; `tasks_from: restart` does the same on demand.
 
 == Development
 

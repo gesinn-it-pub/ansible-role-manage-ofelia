@@ -4,13 +4,22 @@ services:
     image: {{ manage_ofelia_image }}:{{ manage_ofelia_version }}
     container_name: ofelia
     restart: unless-stopped
+    # Ofelia 0.3.x ignores a configuration file in Docker mode, so the daemon is configured by these labels
+    command: daemon --docker
     labels:
       # Traefik exposes every container by default; Ofelia has nothing to route
       - "traefik.enable=false"
-    command: daemon --docker --config=/config.ini
+{% if manage_ofelia_keepalive_job | bool %}
+      # Ofelia 0.3.x exits when no job is registered. Without this job a host whose containers carry no
+      # job-exec labels would restart the container in a loop.
+      - "ofelia.job-local.keepalive.schedule=@daily"
+      - "ofelia.job-local.keepalive.command=true"
+{% endif %}
+{% if manage_ofelia_reports_enabled | bool %}
+      - "ofelia.save-folder=/reports"
+{% endif %}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config.ini:/config.ini:ro
 {% if manage_ofelia_reports_enabled | bool %}
       - ./reports:/reports
 {% endif %}

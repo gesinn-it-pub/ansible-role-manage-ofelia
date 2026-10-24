@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    # Not covered: starting and restarting the service. The run needs a Docker
+    # daemon, so manage_ofelia_manage_service is false and only the rendered
+    # files are tested.
+    - name: Apply role
+      ansible.builtin.include_role:
+        name: ansible-role-manage-ofelia
+      vars:
+        manage_ofelia_version: "0.3.22"
+        manage_ofelia_manage_service: false
+        manage_ofelia_keepalive_job: false
+        manage_ofelia_installation_path: /tmp/molecule-ofelia-test

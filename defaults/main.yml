@@ -3,3 +3,4 @@ manage_ofelia_image: mcuadros/ofelia
 manage_ofelia_installation_path: /var/ofelia
 manage_ofelia_reports_enabled: false
 manage_ofelia_manage_service: true
+manage_ofelia_keepalive_job: true

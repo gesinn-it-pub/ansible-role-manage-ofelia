@@ -1,0 +1,16 @@
+---
+- name: Verify without-keepalive
+  hosts: all
+  vars:
+    install_path: /tmp/molecule-ofelia-test
+  tasks:
+    - name: Read docker-compose.yml
+      ansible.builtin.slurp:
+        src: "{{ install_path }}/docker-compose.yml"
+      register: compose_raw
+
+    - name: Assert no job is registered when the keepalive job is switched off
+      ansible.builtin.assert:
+        that:
+          - "'ofelia.job-local' not in (compose_raw.content | b64decode)"
+          - "'keepalive' not in (compose_raw.content | b64decode)"
