@@ -1,0 +1,45 @@
+---
+- name: Verify without-reports
+  hosts: all
+  vars:
+    install_path: /tmp/molecule-ofelia-test
+  tasks:
+    - name: Read docker-compose.yml
+      ansible.builtin.slurp:
+        src: "{{ install_path }}/docker-compose.yml"
+      register: compose_raw
+
+    - name: Read config.ini
+      ansible.builtin.slurp:
+        src: "{{ install_path }}/config.ini"
+      register: config_raw
+
+    - name: Stat the reports directory
+      ansible.builtin.stat:
+        path: "{{ install_path }}/reports"
+      register: reports_dir
+
+    - name: Assert the image and container name
+      ansible.builtin.assert:
+        that:
+          - "'image: mcuadros/ofelia:0.3.22' in (compose_raw.content | b64decode)"
+          - "'container_name: ofelia' in (compose_raw.content | b64decode)"
+
+    - name: Assert the Docker socket is mounted read-only
+      ansible.builtin.assert:
+        that: "'/var/run/docker.sock:/var/run/docker.sock:ro' in (compose_raw.content | b64decode)"
+
+    - name: Assert the config file is passed to the daemon
+      ansible.builtin.assert:
+        that: "'--config=/config.ini' in (compose_raw.content | b64decode)"
+
+    - name: Assert the compose file does not join the traefik network
+      ansible.builtin.assert:
+        that: "'traefik' not in (compose_raw.content | b64decode)"
+
+    - name: Assert reports are not configured
+      ansible.builtin.assert:
+        that:
+          - "'save-folder' not in (config_raw.content | b64decode)"
+          - "'/reports' not in (compose_raw.content | b64decode)"
+          - not reports_dir.stat.exists

@@ -1,0 +1,21 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Read the result of the run
+      ansible.builtin.slurp:
+        src: /tmp/molecule-ofelia-result
+      register: result
+
+    - name: Assert a missing manage_ofelia_version fails the role
+      ansible.builtin.assert:
+        that: (result.content | b64decode | trim) == 'failed'
+
+    - name: Check that nothing was deployed
+      ansible.builtin.stat:
+        path: /tmp/molecule-ofelia-test/docker-compose.yml
+      register: compose
+
+    - name: Assert the failure happened before any file was written
+      ansible.builtin.assert:
+        that: not compose.stat.exists

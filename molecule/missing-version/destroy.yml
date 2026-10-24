@@ -1,0 +1,11 @@
+---
+- name: Destroy
+  hosts: all
+  tasks:
+    - name: Remove files created by the scenario
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/molecule-ofelia-test
+        - /tmp/molecule-ofelia-result

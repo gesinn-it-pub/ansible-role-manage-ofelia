@@ -1,0 +1,10 @@
+---
+# The local driver changes the machine that runs the test, so remove what the
+# scenario created.
+- name: Destroy
+  hosts: all
+  tasks:
+    - name: Remove the test installation path
+      ansible.builtin.file:
+        path: /tmp/molecule-ofelia-test
+        state: absent
