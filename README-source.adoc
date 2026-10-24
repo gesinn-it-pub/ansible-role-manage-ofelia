@@ -1,0 +1,85 @@
+:project_name: Ansible Role "Manage Ofelia"
+= {project_name}
+
+Special purpose Ansible role to manage the https://github.com/mcuadros/ofelia[Ofelia] job scheduler in "factory"
+environments.
+
+== What it does
+
+`tasks/main.yml` deploys Ofelia as a Docker Compose service:
+
+. Creates the installation directory (and `reports/` when reports are enabled).
+. Renders `docker-compose.yml` and `config.ini` into it.
+. Starts the service with `community.docker.docker_compose_v2` and recreates it when a rendered file changed.
+
+Ofelia reads its jobs from Docker labels (`ofelia.job-exec.<name>.schedule`, ...) on the target containers. The role
+does not define jobs. The container is named `ofelia` and gets the Docker socket read-only. It is not attached to the
+`traefik` network.
+
+== Requirements
+
+* ansible-core 2.19 or newer (the CI tests the 2.19 floor and the latest release)
+* The collection listed in `requirements.yml` (`community.docker` 3.6 or newer) and the Docker Compose plugin on the
+  target
+* Privileges to write the installation path and to talk to the Docker daemon (usually `become: true`)
+
+== Usage
+
+[source,yaml]
+----
+- hosts: all
+  become: true
+  tasks:
+    - name: Ensure Ofelia
+      ansible.builtin.include_role:
+        name: gesinn.manage_ofelia
+      vars:
+        manage_ofelia_version: "0.3.22"
+----
+
+To recreate the container on demand, call the role with `tasks_from: restart`.
+
+== Variables
+
+The variables are validated against `meta/argument_specs.yml`.
+
+[cols="2,1,3",options="header"]
+|===
+| Variable | Default | Description
+
+| `manage_ofelia_version`
+| required
+| Tag of the Ofelia image.
+
+| `manage_ofelia_image`
+| `mcuadros/ofelia`
+| Image repository.
+
+| `manage_ofelia_installation_path`
+| `/var/ofelia`
+| Directory with the compose file and the configuration.
+
+| `manage_ofelia_reports_enabled`
+| `false`
+| Save a report of every job execution to `reports/` below the installation path.
+
+| `manage_ofelia_manage_service`
+| `true`
+| Start and restart the service. Set to `false` to only render the files.
+|===
+
+== Handlers
+
+`Restart ofelia` recreates the container after a changed `docker-compose.yml` or `config.ini`. Consumers can notify it
+or define a handler with the same name in their play.
+
+== Development
+
+[source,shell]
+----
+make lint       # ansible-lint, production profile
+make molecule   # all scenarios; ANSIBLE_CORE=2.19 runs the floor, SCENARIO=<name> runs one
+----
+
+The Molecule scenarios run with `manage_ofelia_manage_service: false`: starting and restarting the service needs a
+Docker daemon and is not covered by the tests.
