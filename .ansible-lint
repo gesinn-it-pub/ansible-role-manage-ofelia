@@ -1,0 +1,6 @@
+---
+profile: production
+
+# Exclude files not meant to be linted directly
+exclude_paths:
+  - .github/
