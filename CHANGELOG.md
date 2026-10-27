@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](https://semver.org/) and
 
 ## [Unreleased]
 
+### Changed
+- Declare EL 8 (Rocky Linux) as a supported platform. The role has no distribution specific code; it is not covered by the Molecule scenarios, which do not run a real package manager or Docker daemon
+
 ## [1.1.0] - 2026-10-24
 
 Keeps Ofelia running on hosts without jobs and makes the report option work. Ofelia 0.3.x ignores a configuration file
